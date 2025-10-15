@@ -64,8 +64,8 @@ def get_dataloaders(config):
     root_dir = config['root_dir']
     img_height = config['dataloader_params']['img_height']
     img_width = config['dataloader_params']['img_width']
-    mean = config['normalization']['mean']
-    std = config['normalization']['std']
+    mean = config['dataloader_params']['mean']
+    std = config['dataloader_params']['std']
     batch_size = config['dataloader_params']['batch_size']
     seed = config['seed']
 

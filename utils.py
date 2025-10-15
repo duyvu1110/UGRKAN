@@ -60,8 +60,8 @@ class AverageMeter(object):
 def denormalize(tensor, config):
     """Reverses the normalization on a tensor image for visualization."""
     tensor = tensor.clone()
-    mean = config['normalization']['mean']
-    std = config['normalization']['std']
+    mean = config['dataloader_params']['mean']
+    std = config['dataloader_params']['std']
     mean = torch.tensor(mean, device=tensor.device).view(3, 1, 1)
     std = torch.tensor(std, device=tensor.device).view(3, 1, 1)
     tensor.mul_(std).add_(mean)
