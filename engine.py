@@ -24,7 +24,7 @@ def train_one_epoch(model, dataloader, optimizer, loss_fn, device):
         
     return loss_meter.avg
 
-def evaluate(model, dataloader, loss_fn, device, epoch):
+def evaluate(config, model, dataloader, loss_fn, device, epoch):
     """Performs validation, calculates metrics, and plots results."""
     model.eval()
     loss_meter = AverageMeter()
@@ -59,8 +59,8 @@ def train(config, model, train_loader, val_loader, optimizer, scheduler, loss_fn
     best_mean_iou = float("-inf")
     current_patience = 0
 
-    for epoch in range(config.NUM_EPOCHS):
-        print(f"--- Epoch {epoch + 1}/{config.NUM_EPOCHS} ---")
+    for epoch in range(config['training_params']['num_epochs']):
+        print(f"--- Epoch {epoch + 1}/{config['training_params']['num_epochs']} ---")
         
         avg_train_loss = train_one_epoch(model, train_loader, optimizer, loss_fn, device)
         avg_val_loss, mean_iou, dice = evaluate(config, model, val_loader, loss_fn, device, epoch)
@@ -81,8 +81,8 @@ def train(config, model, train_loader, val_loader, optimizer, scheduler, loss_fn
             torch.save(model.state_dict(), 'best_model.pth')
         else:
             current_patience += 1
-            if current_patience >= config.PATIENCE:
-                print(f"Early stopping triggered after {config.PATIENCE} epochs.")
+            if current_patience >= config['training_params']['patience']:
+                print(f"Early stopping triggered after {config['training_params']['patience']} epochs.")
                 break
         
         torch.cuda.empty_cache()
