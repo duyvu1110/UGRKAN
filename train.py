@@ -7,7 +7,6 @@ from loss import BCEDiceLoss
 from engine import train
 from utils import seed_everything,load_config
 import argparse
-
 def main():
     """Main function to run the training pipeline."""
     parser = argparse.ArgumentParser(description="Run a segmentation experiment from a YAML config.")
