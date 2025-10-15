@@ -85,7 +85,7 @@ def get_dataloaders(config):
     ])
     
     # Create and split dataset
-    if config['datasets'] == 'busi':
+    if config['dataset_name'] == 'BUSI':
         full_dataset = BUSIDataset(root_dir=root_dir)
         train_size = int(0.8 * len(full_dataset))
         val_size = len(full_dataset) - train_size

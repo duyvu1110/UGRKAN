@@ -18,6 +18,7 @@ common:
 # --- Dataset-specific configurations ---
 datasets:
   busi:
+    dataset_name: "BUSI"
     root_dir: '../input/breast-ultrasound-images-dataset/Dataset_BUSI_with_GT/'
     num_classes: 1 # Binary segmentation (lesion vs. background)
     # Dataloader and image settings
