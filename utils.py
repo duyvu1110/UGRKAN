@@ -81,7 +81,7 @@ def binary_mask_to_vis_image(mask, lesion_color=[0, 255, 0]):
 
 def plot_result(config, image, prediction_logits, ground_truth_mask):
     """Plots original image, ground truth, and predicted segmentation."""
-    denormalized_image = denormalize(config, image)
+    denormalized_image = denormalize(image,config)
     preds_binary = (torch.sigmoid(prediction_logits) > 0.5).float()
     
     plt.figure(figsize=(18, 6))
