@@ -32,7 +32,7 @@ def main():
     # Set up optimizer, scheduler, and loss function
     optimizer = torch.optim.AdamW(model.parameters(), lr=config['training_params']['learning_rate'], weight_decay=1e-5)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode="min", factor=0.1, patience=config.PATIENCE - 4
+        optimizer, mode="min", factor=0.1, patience=config['training_params']['patience'], verbose=True
     )
     loss_fn = BCEDiceLoss()
     
