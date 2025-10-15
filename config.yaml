@@ -1,0 +1,43 @@
+# config.yaml
+
+# Common parameters shared across all experiments
+common:
+  project_name: "U-Net_Medical_Segmentation"
+  seed: 1187
+  # Parameters for the training loop
+  training_params:
+    num_epochs: 400
+    learning_rate: 0.0001
+    patience: 10
+    batch_size: 8
+    
+  model_params:
+    name: "UGRKAN"
+    img_size: 256
+
+# --- Dataset-specific configurations ---
+datasets:
+  busi:
+    root_dir: '../input/breast-ultrasound-images-dataset/Dataset_BUSI_with_GT/'
+    num_classes: 1 # Binary segmentation (lesion vs. background)
+    # Dataloader and image settings
+    dataloader_params:
+      batch_size: 8
+      img_height: 256
+      img_width: 256
+      mean: [0.485, 0.456, 0.406]
+      std: [0.229, 0.224, 0.225]
+
+  # Configuration for the CVC-ClinicDB dataset
+  cvc_clinicdb:
+    root_dir: '../input/breast-ultrasound-images-dataset/Dataset_BUSI_with_GT/'
+    num_classes: 1 # Binary segmentation (polyp vs. background)
+    dataloader_params:
+      batch_size: 8
+      img_height: 256
+      img_width: 256
+    # You would calculate and place the specific mean/std for this dataset here
+    normalization:
+      mean: [0.485, 0.456, 0.406] # Placeholder
+      std: [0.229, 0.224, 0.225]  # Placeholder
+      
