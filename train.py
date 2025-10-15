@@ -30,7 +30,7 @@ def main():
     model = UGRKAN(num_classes=config['num_classes'], img_size=config['model_params']['img_size']).to(device)
     
     # Set up optimizer, scheduler, and loss function
-    optimizer = torch.optim.AdamW(model.parameters(), lr=config['training_params']['learning_rate'], weight_decay=1e-5)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=config['training_params']['learning_rate'], weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="min", factor=0.1, patience=config['training_params']['patience'], verbose=True
     )

@@ -48,7 +48,7 @@ def evaluate(config, model, dataloader, loss_fn, device, epoch):
             dice = dice_coefficient(preds, labels.float())
             dice_meter.update(dice, images.size(0))
 
-            if i == 0: # Plot first batch of every validation epoch
+            if i == 0:
                 plot_result(config, images[0].cpu(), outputs[0].cpu(), labels[0].cpu())
 
     return loss_meter.avg, iou_meter.avg, dice_meter.avg
