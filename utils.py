@@ -8,10 +8,7 @@ import torch
 import matplotlib.pyplot as plt
 from PIL import Image
 
-# Import from project files
-import config
-
-def seed_everything(seed = config.SEED):
+def seed_everything(seed):
     """
     Seeds all relevant random number generators for reproducibility.
     """
@@ -60,11 +57,13 @@ class AverageMeter(object):
         self.count += n
         self.avg = self.sum / self.count
 
-def denormalize(tensor):
+def denormalize(tensor, config):
     """Reverses the normalization on a tensor image for visualization."""
     tensor = tensor.clone()
-    mean = torch.tensor(config.BUSI_MEAN, device=tensor.device).view(3, 1, 1)
-    std = torch.tensor(config.BUSI_STD, device=tensor.device).view(3, 1, 1)
+    mean = config['normalization']['mean']
+    std = config['normalization']['std']
+    mean = torch.tensor(mean, device=tensor.device).view(3, 1, 1)
+    std = torch.tensor(std, device=tensor.device).view(3, 1, 1)
     tensor.mul_(std).add_(mean)
     tensor = torch.clamp(tensor, 0, 1)
     return tensor
@@ -80,9 +79,9 @@ def binary_mask_to_vis_image(mask, lesion_color=[0, 255, 0]):
     segment_image[mask == 1] = lesion_color
     return Image.fromarray(segment_image)
 
-def plot_result(image, prediction_logits, ground_truth_mask):
+def plot_result(config, image, prediction_logits, ground_truth_mask):
     """Plots original image, ground truth, and predicted segmentation."""
-    denormalized_image = denormalize(image)
+    denormalized_image = denormalize(config, image)
     preds_binary = (torch.sigmoid(prediction_logits) > 0.5).float()
     
     plt.figure(figsize=(18, 6))

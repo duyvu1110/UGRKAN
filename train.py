@@ -38,6 +38,7 @@ def main():
     
     # Start training
     trained_model, history = train(
+        config,
         model,
         train_loader,
         val_loader,

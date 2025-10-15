@@ -2,7 +2,6 @@
 
 import torch
 from tqdm import tqdm
-import config
 from utils import AverageMeter, plot_result
 from metrics import iou_score, dice_coefficient
 
@@ -50,11 +49,11 @@ def evaluate(model, dataloader, loss_fn, device, epoch):
             dice_meter.update(dice, images.size(0))
 
             if i == 0: # Plot first batch of every validation epoch
-                plot_result(images[0].cpu(), outputs[0].cpu(), labels[0].cpu())
+                plot_result(config, images[0].cpu(), outputs[0].cpu(), labels[0].cpu())
 
     return loss_meter.avg, iou_meter.avg, dice_meter.avg
 
-def train(model, train_loader, val_loader, optimizer, scheduler, loss_fn, device):
+def train(config, model, train_loader, val_loader, optimizer, scheduler, loss_fn, device):
     """Main training loop with early stopping."""
     history = {'train_loss': [], 'val_loss': [], 'mean_iou': [], 'dice': []}
     best_mean_iou = float("-inf")
@@ -64,7 +63,7 @@ def train(model, train_loader, val_loader, optimizer, scheduler, loss_fn, device
         print(f"--- Epoch {epoch + 1}/{config.NUM_EPOCHS} ---")
         
         avg_train_loss = train_one_epoch(model, train_loader, optimizer, loss_fn, device)
-        avg_val_loss, mean_iou, dice = evaluate(model, val_loader, loss_fn, device, epoch)
+        avg_val_loss, mean_iou, dice = evaluate(config, model, val_loader, loss_fn, device, epoch)
         
         print(f"Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f} | MeanIoU: {mean_iou:.4f} | Dice Coeff: {dice:.4f}")
         
