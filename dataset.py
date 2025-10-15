@@ -101,7 +101,7 @@ def get_dataloaders(config):
 
     # Create dataloaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4,worker_init_fn=seed_worker,generator=g, pin_memory=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4,worker_init_fn=seed_worker, pin_memory=True)
+    val_loader = DataLoader(val_dataset, batch_size=100, shuffle=False, num_workers=4,worker_init_fn=seed_worker, pin_memory=True)
     
     print(f"Full dataset size: {len(full_dataset)}")
     print(f"Found {len(train_dataset)} training images.")
