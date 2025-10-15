@@ -41,7 +41,53 @@ class BUSIDataset(Dataset):
         if class_name in ["benign", "malignant"]:
             semantic_mask[original_mask > 0] = 1
         return image, semantic_mask
+class CVCDataset(Dataset):
+    """
+    PyTorch Dataset class for the CVC-ClinicDB dataset, specifically using PNG files.
+    
+    Args:
+        root_dir (str): The root directory of the CVC-ClinicDB dataset.
+    """
+    def __init__(self, root_dir):
+        self.root_dir = root_dir
 
+        # --- Paths are now hardcoded to use the PNG directories ---
+        original_dir = os.path.join(self.root_dir, 'PNG', 'Original')
+        mask_dir = os.path.join(self.root_dir, 'PNG', 'Ground Truth')
+
+        # --- Find all .png images in the 'Original' folder ---
+        self.image_paths = sorted(glob.glob(os.path.join(original_dir, '*.png')))
+        self.mask_paths = []
+        
+        # Match images to their corresponding masks by filename
+        for img_path in self.image_paths:
+            file_name = os.path.basename(img_path)
+            mask_path = os.path.join(mask_dir, file_name)
+            if os.path.exists(mask_path):
+                self.mask_paths.append(mask_path)
+        
+        assert len(self.image_paths) != 0, f"No images found in {original_dir}"
+        assert len(self.image_paths) == len(self.mask_paths), "Mismatch in image and mask counts."
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, index):
+        img_path = self.image_paths[index]
+        mask_path = self.mask_paths[index]
+        
+        # Load the color image and convert from BGR to RGB
+        image = cv2.imread(img_path, cv2.IMREAD_COLOR)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        
+        # Load the mask in grayscale
+        original_mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        
+        # Create a binary semantic mask (0 for background, 1 for polyp)
+        semantic_mask = np.zeros_like(original_mask, dtype=np.int64)
+        semantic_mask[original_mask > 0] = 1
+        
+        return image, semantic_mask
 class TransformedSubset(Dataset):
     def __init__(self, subset, transform):
         self.subset = subset
@@ -87,6 +133,10 @@ def get_dataloaders(config):
     # Create and split dataset
     if config['dataset_name'] == 'BUSI':
         full_dataset = BUSIDataset(root_dir=root_dir)
+        train_size = int(0.8 * len(full_dataset))
+        val_size = len(full_dataset) - train_size
+    elif config['dataset_name'] == 'CVC-ClinicDB':
+        full_dataset = CVCDataset(root_dir=root_dir)
         train_size = int(0.8 * len(full_dataset))
         val_size = len(full_dataset) - train_size
     else:
