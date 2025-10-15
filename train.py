@@ -45,7 +45,7 @@ def main():
         optimizer,
         scheduler,
         loss_fn,
-        config.DEVICE
+        device
     )
     
     print("Best Mean IoU:", max(history['mean_iou']))
