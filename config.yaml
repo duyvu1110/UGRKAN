@@ -32,7 +32,7 @@ datasets:
   # Configuration for the CVC-ClinicDB dataset
   cvc_clinicdb:
     dataset_name: "CVC-ClinicDB"
-    root_dir: '../input/breast-ultrasound-images-dataset/Dataset_BUSI_with_GT/'
+    root_dir: '/kaggle/input/cvcclinicdb/'
     num_classes: 1 # Binary segmentation (lesion vs. background)
     # Dataloader and image settings
     dataloader_params:
