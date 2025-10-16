@@ -136,13 +136,13 @@ def get_dataloaders(config):
         A.HorizontalFlip(p=0.5),
         A.VerticalFlip(p=0.5),
         A.Resize(img_height, img_width),
-        A.Normalize(mean=mean.tolist(), std=std.tolist()),
+        A.Normalize(mean=mean, std=std),
         ToTensorV2()
     ])
 
     val_transform = A.Compose([
         A.Resize(img_height, img_width),
-        A.Normalize(mean=mean.tolist(), std=std.tolist()),
+        A.Normalize(mean=mean, std=std),
         ToTensorV2()
     ])
     # Apply transforms
