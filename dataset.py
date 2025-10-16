@@ -8,7 +8,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader, random_split
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
-from utils import seed_worker, calculate_mean_std
+from utils import seed_worker
 
 class BUSIDataset(Dataset):
     def __init__(self, root_dir):
