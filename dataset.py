@@ -110,8 +110,8 @@ def get_dataloaders(config):
     root_dir = config['root_dir']
     img_height = config['dataloader_params']['img_height']
     img_width = config['dataloader_params']['img_width']
-    # mean = config['dataloader_params']['mean']
-    # std = config['dataloader_params']['std']
+    mean = config['dataloader_params']['mean']
+    std = config['dataloader_params']['std']
     batch_size = config['dataloader_params']['batch_size']
     seed = config['seed']
 
@@ -131,9 +131,6 @@ def get_dataloaders(config):
     g = torch.Generator()
     g.manual_seed(seed)
     train_subset, val_subset = random_split(full_dataset, [train_size, val_size], generator=g)
-    temp_transform = A.Compose([A.Resize(config['dataloader_params']['img_height'], config['dataloader_params']['img_width']), ToTensorV2()])
-    stat_calc_dataset = TransformedSubset(train_subset, transform=temp_transform)
-    mean, std = calculate_mean_std(stat_calc_dataset)
     train_transform = A.Compose([
         A.RandomRotate90(),
         A.HorizontalFlip(p=0.5),

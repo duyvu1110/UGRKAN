@@ -7,8 +7,6 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 from PIL import Image
-from tqdm import tqdm
-from torch.utils.data import DataLoader
 def seed_everything(seed):
     """
     Seeds all relevant random number generators for reproducibility.
@@ -110,43 +108,3 @@ def load_config(config_path="config.yaml"):
         config = yaml.safe_load(file)
     return config
 
-
-
-def calculate_mean_std(dataset):
-    """
-    Calculates the mean and standard deviation of a dataset.
-    
-    Args:
-        dataset (torch.utils.data.Dataset): The dataset for which to calculate the stats.
-                                             It should return images as PyTorch tensors.
-                                             
-    Returns:
-        tuple: A tuple containing the mean and std as torch tensors.
-    """
-    # A dataloader to iterate over the dataset efficiently
-    loader = DataLoader(dataset, batch_size=64, shuffle=False, num_workers=4)
-    
-    # Tensors to store the sum of pixels and sum of squared pixels for each channel
-    psum = torch.tensor([0.0, 0.0, 0.0])
-    psum_sq = torch.tensor([0.0, 0.0, 0.0])
-    
-    print("Calculating mean and std of the training set...")
-    for images, _ in tqdm(loader):
-        # images shape: [B, C, H, W]
-        # Flatten spatial dimensions and sum along the batch and spatial dimensions
-        psum += images.sum(axis=[0, 2, 3])
-        psum_sq += (images ** 2).sum(axis=[0, 2, 3])
-        
-    # Calculate the total number of pixels
-    # Assumes all images are the same size. Takes the size from the last batch.
-    count = len(dataset) * images.size(2) * images.size(3)
-    
-    # Final calculation for mean and std
-    total_mean = psum / count
-    total_var = (psum_sq / count) - (total_mean ** 2)
-    total_std = torch.sqrt(total_var)
-    
-    print(f"Calculated Mean: {total_mean.tolist()}")
-    print(f"Calculated Std: {total_std.tolist()}")
-    
-    return total_mean, total_std
