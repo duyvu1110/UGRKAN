@@ -40,12 +40,11 @@ def evaluate(config, model, dataloader, loss_fn, device, epoch):
             loss = loss_fn(outputs, labels)
             loss_meter.update(loss.item(), images.size(0))
 
-            iou, _, _ = iou_score(outputs, labels)
+            iou, dice, _ = iou_score(outputs, labels)
             iou_meter.update(iou, images.size(0))
 
             probs = torch.sigmoid(outputs)
             preds = (probs > 0.5).float()
-            dice = dice_coefficient(preds, labels.float())
             dice_meter.update(dice, images.size(0))
 
             if i == 0:
