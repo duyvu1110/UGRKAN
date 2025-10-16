@@ -8,7 +8,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader, random_split
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
-from utils import seed_worker
+from utils import seed_worker, calculate_mean_std
 
 class BUSIDataset(Dataset):
     def __init__(self, root_dir):
@@ -110,25 +110,12 @@ def get_dataloaders(config):
     root_dir = config['root_dir']
     img_height = config['dataloader_params']['img_height']
     img_width = config['dataloader_params']['img_width']
-    mean = config['dataloader_params']['mean']
-    std = config['dataloader_params']['std']
+    # mean = config['dataloader_params']['mean']
+    # std = config['dataloader_params']['std']
     batch_size = config['dataloader_params']['batch_size']
     seed = config['seed']
 
-    train_transform = A.Compose([
-        A.RandomRotate90(),
-        A.HorizontalFlip(p=0.5),
-        A.VerticalFlip(p=0.5),
-        A.Resize(img_height, img_width),
-        A.Normalize(mean=mean, std=std),
-        ToTensorV2()
-    ])
-
-    val_transform = A.Compose([
-        A.Resize(img_height, img_width),
-        A.Normalize(mean=mean, std=std),
-        ToTensorV2()
-    ])
+    
     
     # Create and split dataset
     if config['dataset_name'] == 'BUSI':
@@ -144,7 +131,23 @@ def get_dataloaders(config):
     g = torch.Generator()
     g.manual_seed(seed)
     train_subset, val_subset = random_split(full_dataset, [train_size, val_size], generator=g)
+    temp_transform = A.Compose([A.Resize(config['dataloader_params']['img_height'], config['dataloader_params']['img_width']), ToTensorV2()])
+    stat_calc_dataset = TransformedSubset(train_subset, transform=temp_transform)
+    mean, std = calculate_mean_std(stat_calc_dataset)
+    train_transform = A.Compose([
+        A.RandomRotate90(),
+        A.HorizontalFlip(p=0.5),
+        A.VerticalFlip(p=0.5),
+        A.Resize(img_height, img_width),
+        A.Normalize(mean=mean.tolist(), std=std.tolist()),
+        ToTensorV2()
+    ])
 
+    val_transform = A.Compose([
+        A.Resize(img_height, img_width),
+        A.Normalize(mean=mean.tolist(), std=std.tolist()),
+        ToTensorV2()
+    ])
     # Apply transforms
     train_dataset = TransformedSubset(train_subset, transform=train_transform)
     val_dataset = TransformedSubset(val_subset, transform=val_transform)
