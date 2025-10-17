@@ -88,6 +88,59 @@ class CVCDataset(Dataset):
         semantic_mask[original_mask > 0] = 1
         
         return image, semantic_mask
+    
+class GlaSDataset(Dataset):
+    """
+    PyTorch Dataset class for the GlaS (Gland Segmentation) dataset.
+    
+    Assumes root_dir points to a directory containing:
+    - Original images (e.g., 'train_1.bmp')
+    - Mask images (e.g., 'train_1_anno.bmp')
+    
+    Args:
+        root_dir (str): The root directory of the GLaS dataset (e.g., .../GlaS/train/)
+    """
+    def __init__(self, root_dir):
+        self.root_dir = root_dir
+        self.image_paths = []
+        self.mask_paths = []
+        
+        # Find all original images (those that do NOT end with _anno.bmp)
+        all_image_paths = sorted(glob.glob(os.path.join(self.root_dir, '*.bmp')))
+        
+        for img_path in all_image_paths:
+            if not img_path.endswith('_anno.bmp'):
+                # Construct the expected mask path
+                mask_path = img_path.replace('.bmp', '_anno.bmp')
+                
+                if os.path.exists(mask_path):
+                    self.image_paths.append(img_path)
+                    self.mask_paths.append(mask_path)
+                
+        assert len(self.image_paths) != 0, f"No images found in {self.root_dir}"
+        assert len(self.image_paths) == len(self.mask_paths), "Mismatch in image and mask counts."
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, index):
+        img_path = self.image_paths[index]
+        mask_path = self.mask_paths[index]
+        
+        # --- Load color image and convert from BGR to RGB ---
+        # Histology images are in color
+        image = cv2.imread(img_path, cv2.IMREAD_COLOR)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        
+        # Load the mask in grayscale
+        original_mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        
+        # --- Create binary semantic mask ---
+        # Any non-black pixel in the mask is considered a gland
+        semantic_mask = np.zeros_like(original_mask, dtype=np.int64)
+        semantic_mask[original_mask > 0] = 1 # Set gland pixels to 1
+        
+        return image, semantic_mask
 class TransformedSubset(Dataset):
     def __init__(self, subset, transform):
         self.subset = subset
@@ -124,6 +177,10 @@ def get_dataloaders(config):
         val_size = len(full_dataset) - train_size
     elif config['dataset_name'] == 'CVC-ClinicDB':
         full_dataset = CVCDataset(root_dir=root_dir)
+        train_size = int(0.8 * len(full_dataset))
+        val_size = len(full_dataset) - train_size
+    elif config['dataset_name'] == 'GlaS': 
+        full_dataset = GlaSDataset(root_dir=root_dir)
         train_size = int(0.8 * len(full_dataset))
         val_size = len(full_dataset) - train_size
     else:
