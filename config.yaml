@@ -3,7 +3,7 @@
 # Common parameters shared across all experiments
 common:
   project_name: "U-Net_Medical_Segmentation"
-  seed: 2981
+  seed: 6142
   # Parameters for the training loop
   training_params:
     num_epochs: 400
