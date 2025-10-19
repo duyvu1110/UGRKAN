@@ -16,13 +16,27 @@ def main():
         required=True, 
         help="The name of the dataset configuration to use (e.g., 'busi', 'cvc_clinicdb')."
     )
+    parser.add_argument(
+        '--seed', 
+        type=int, 
+        default=None, # Default to None, so we know if it was provided
+        help="Override the seed for reproducibility from the config file."
+    )
     args = parser.parse_args()
     full_config = load_config()
     if args.dataset not in full_config['datasets']:
         raise ValueError(f"Dataset '{args.dataset}' not found in config.yaml. Available datasets: {list(full_config['datasets'].keys())}")
     config = full_config['common'] | full_config['datasets'][args.dataset]
     print(f"--- Running experiment for dataset: {args.dataset} ---")
- 
+    if args.seed is not None:
+        # The --seed argument was provided, so it takes priority
+        final_seed = args.seed
+        config['seed'] = final_seed # Update the config dict
+        print(f"Using command-line --seed override: {final_seed}")
+    else:
+        # No --seed argument, use the one from the config file
+        final_seed = config['seed']
+        print(f"Using seed from config file: {final_seed}")
     seed_everything(config['seed'])
     train_loader, val_loader = get_dataloaders(config)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
