@@ -2,8 +2,8 @@
 
 import torch
 from dataset import get_dataloaders
-# from ugrkan import UGRKAN
-from ukan import UKAN
+from ugrkan import UGRKAN
+#from ukan import UKAN
 from loss import BCEDiceLoss
 from engine import train
 from utils import seed_everything,load_config
@@ -41,7 +41,7 @@ def main():
     seed_everything(config['seed'])
     train_loader, val_loader = get_dataloaders(config)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    model = UKAN(num_classes=config['num_classes'], img_size=config['model_params']['img_size']).to(device)
+    model = UGRKAN(num_classes=config['num_classes'], img_size=config['model_params']['img_size']).to(device)
     
     # Set up optimizer, scheduler, and loss function
     optimizer = torch.optim.AdamW(model.parameters(), lr=config['training_params']['learning_rate'], weight_decay=1e-4)
