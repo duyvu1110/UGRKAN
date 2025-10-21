@@ -141,6 +141,69 @@ class GlaSDataset(Dataset):
         semantic_mask[original_mask > 0] = 1 # Set gland pixels to 1
         
         return image, semantic_mask
+class KvasirDataset(Dataset):
+    """
+    PyTorch Dataset class for the Kvasir-SEG dataset.
+    
+    Assumes root_dir points to a directory containing:
+    - 'images/' folder with original .jpg images
+    - 'masks/' folder with corresponding .jpg mask images
+    
+    Args:
+        root_dir (str): The root directory of the Kvasir-SEG dataset.
+    """
+    def __init__(self, root_dir):
+        self.root_dir = root_dir
+        
+        # Define paths to image and mask folders
+        image_dir = os.path.join(self.root_dir, 'images')
+        mask_dir = os.path.join(self.root_dir, 'masks')
+
+        # Find all images. Kvasir-SEG typically uses .jpg format.
+        # We sort them to ensure a consistent order.
+        self.image_paths = sorted(glob.glob(os.path.join(image_dir, '*.jpg')))
+        self.mask_paths = []
+
+        # Create the corresponding list of mask paths
+        for img_path in self.image_paths:
+            # Get the base filename (e.g., 'cju0qkwl35piu0993l0a2pa8s.jpg')
+            file_name = os.path.basename(img_path)
+            
+            # Create the full path to the corresponding mask
+            mask_path = os.path.join(mask_dir, file_name)
+            
+            # Ensure the mask file actually exists
+            if os.path.exists(mask_path):
+                self.mask_paths.append(mask_path)
+            else:
+                print(f"Warning: No mask found for image {img_path}")
+
+        assert len(self.image_paths) != 0, f"No images found in {image_dir}"
+        assert len(self.image_paths) == len(self.mask_paths), \
+            "The number of images and masks does not match."
+
+    def __len__(self):
+        return len(self.image_paths)
+
+    def __getitem__(self, index):
+        img_path = self.image_paths[index]
+        mask_path = self.mask_paths[index]
+        
+        # --- Load Image ---
+        # Load the color image and convert from OpenCV's BGR to standard RGB
+        image = cv2.imread(img_path, cv2.IMREAD_COLOR)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        
+        # --- Load Mask ---
+        # Load the mask in grayscale (it's a single channel)
+        original_mask = cv2.imread(mask_path, cv2.IMREAD_GRAYSCALE)
+        
+        # --- Create Binary Semantic Mask ---
+        # Kvasir masks use 255 for the polyp. We convert this to 1.
+        semantic_mask = np.zeros_like(original_mask, dtype=np.int64)
+        semantic_mask[original_mask > 0] = 1 # Any non-black pixel is the polyp
+        
+        return image, semantic_mask
 class TransformedSubset(Dataset):
     def __init__(self, subset, transform):
         self.subset = subset
@@ -183,8 +246,10 @@ def get_dataloaders(config):
         full_dataset = GlaSDataset(root_dir=root_dir)
         train_size = int(0.8 * len(full_dataset))
         val_size = len(full_dataset) - train_size
-    else:
-        raise ValueError(f"Dataset {config['dataset_name']} not supported.")
+    elif config['dataset_name'] == 'Kvasir':
+        full_dataset = KvasirDataset(root_dir=root_dir)
+        train_size = int(0.8 * len(full_dataset))
+        val_size = len(full_dataset) - train_size
     g = torch.Generator()
     g.manual_seed(seed)
     train_subset, val_subset = random_split(full_dataset, [train_size, val_size], generator=g)
