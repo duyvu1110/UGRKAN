@@ -18,7 +18,9 @@ try:
     # 3. Tính toán FLOPs và Params
     # 'verbose=False' để tắt log chi tiết từng layer
     flops, params = profile(model, inputs=(dummy_input, ), verbose=False)
+    first_param = next(model.parameters())
 
+    print(f"Current model data type (precision): {first_param.dtype}")
     # 4. In kết quả
     print("\n--- 📊 Kết quả tính toán ---")
     print(f"  Input size:    (1, 1, {INPUT_H}, {INPUT_W})")
