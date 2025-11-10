@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 from thop import profile
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model = UGRKAN(1,256).to(device)
+model = UGRKAN(1).to(device)
 
 INPUT_H = 256
 INPUT_W = 256
