@@ -2,6 +2,7 @@ from ugrkan import UGRKAN
 import torch
 import torch.nn as nn
 import time
+import copy
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model_fp32 = UGRKAN(
@@ -16,11 +17,11 @@ dummy_input_fp32 = torch.randn(1, 3, INPUT_H, INPUT_W).to(device)
 print(f"FP32 model defined. Dtype: {next(model_fp32.parameters()).dtype}")
 
 # --- 3. Define the FP16 (Quantized) Model ---
-# We create this by converting the FP32 model
-model_fp16 = model_fp32.half()
-model_fp16.eval()
+model_fp16 = copy.deepcopy(model_fp32)
 
-# Create the dummy input for the FP16 model (it must also be .half())
+# BÂY GIỜ CHUYỂN ĐỔI BẢN SAO SANG FP16
+model_fp16 = model_fp16.half()
+model_fp16.eval()
 dummy_input_fp16 = dummy_input_fp32.half()
 
 print(f"FP16 model defined. Dtype: {next(model_fp16.parameters()).dtype}")
