@@ -21,7 +21,7 @@ try:
     first_param = next(model.parameters())
 
     print(f"Current model data type (precision): {first_param.dtype}")
-    # 4. In kết quả
+    # 4. In kết quả 
     print("\n--- 📊 Kết quả tính toán ---")
     print(f"  Input size:    (1, 1, {INPUT_H}, {INPUT_W})")
     print(f"  Parameters:    {params / 1e6:.3f} M")
@@ -31,6 +31,7 @@ try:
     if not (10.8 < (params / 1e6) < 11.0):
         print("\n[CẢNH BÁO]: Số params (Triệu) tính được không khớp với 10.9M bạn đã nêu.")
         print("Điều này có nghĩa là 'thop' có thể đã bỏ qua layer GRKAN tùy chỉnh.")
+    
 
 except Exception as e:
     print(f"\n[LỖI] Không thể thực hiện profile:")
