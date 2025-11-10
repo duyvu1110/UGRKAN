@@ -12,7 +12,7 @@ INPUT_W = 256
 # Kích thước: (batch_size, in_channels, height, width)
 # in_channels của bạn là 1 (từ UGRKAN(1, 256))
 try:
-    dummy_input = torch.randn(1, 1, INPUT_H, INPUT_W).to(device)
+    dummy_input = torch.randn(1, 3, INPUT_H, INPUT_W).to(device)
     print(f"Đang phân tích model UGRKAN với đầu vào: (1, 1, {INPUT_H}, {INPUT_W})")
 
     # 3. Tính toán FLOPs và Params
